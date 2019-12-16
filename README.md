@@ -1,4 +1,4 @@
-# NewOrbit.PackageTemplate
+# NewOrbit.Azure.KeyVault.Cryptography
 
 - Source assemblies are stored under `/src`
 - Test assemblies are stored under `/tests`
@@ -16,7 +16,7 @@
 - Click the `Use this template` button at the top of this repo
 - Enter the name for your repository, prefixed with `NewOrbit.`
 - Clone your new repository
-- Open the folder in vs code and doing a global find/replace for `PackageTemplate` with your new package name
+- Open the folder in vs code and doing a global find/replace for `Azure.KeyVault.Cryptography` with your new package name
 - Rename the project and solution files and folders also
 - Delete this section of the readme and you're done
 
@@ -26,7 +26,7 @@
 ## Installation
 
 ```cmd
-dotnet add NewOrbit.PackageTemplate
+dotnet add NewOrbit.Azure.KeyVault.Cryptography
 ```
 
 ## Usage
