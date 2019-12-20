@@ -4,7 +4,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
     using Shouldly;
     using Xunit;
 
-    public class UnitTest1
+    public class ProtectTests
     {
         [Fact]
         public void CanProtectAndUnprotect()
