@@ -1,34 +1,9 @@
 # NewOrbit.Azure.KeyVault.Cryptography
 
-- Source assemblies are stored under `/src`
-- Test assemblies are stored under `/tests`
-- Assemblies should reference code analysis packages:
-  - `Microsoft.CodeQuality.Analyzers`
-  - `StyleCop.Analyzers`
-  - And include a reference to the `NewOrbit.Package.ruleset` file
-  - A sample project is included in this repo setup accordingly
-- Package should be build and published on ADO
-  - A sample `azure-pipelines.yml` is included
-  - The sample project is set up for versioning through ADO
-
-## Using this template
-
-- Click the `Use this template` button at the top of this repo
-- Enter the name for your repository, prefixed with `NewOrbit.`
-- Clone your new repository
-- Open the folder in vs code and doing a global find/replace for `Azure.KeyVault.Cryptography` with your new package name
-- Rename the project and solution files and folders also
-- Delete this section of the readme and you're done
-
-> Readme template follows:
------------------
-
-## Installation
-
-```cmd
-dotnet add NewOrbit.Azure.KeyVault.Cryptography
-```
-
-## Usage
-
-*Example usage and code snippets here.*
+## Size of the encrypted data
+The encrypted data contains all the references and key identifiers it needs to find the correct keys in key vault, validate the signature and decrypt the content.  
+That comes with a fixed overhead of 593 bytes. The encrypted content itself has the same size as the input content, except it goes up in 16 byte increments.  
+Examples
+- Input is 0-15 bytes, the output is 609 bytes
+- Input is 16-31 bytes, the output is 625 bytes
+- Input is 1 MB (1,048,576 bytes), the output is 1,049,185 bytes.
