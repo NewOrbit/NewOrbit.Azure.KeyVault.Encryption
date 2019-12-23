@@ -14,14 +14,14 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
         [InlineData(17, 32)]
         public void CalculateContentLength(int contentLength, int encryptedLength)
         {
-            var sud = new ArrayPositionsV1(contentLength);
+            var sud = ArrayPositionsV1.Get(contentLength);
             sud.EncryptedContent.Length.ShouldBe(encryptedLength);
         }
 
         [Fact]
         public void CalculateCorrectPositions()
         {
-            var sud = new ArrayPositionsV1(16);
+            var sud = ArrayPositionsV1.Get(16);
 
             sud.Version.Position.ShouldBe(0);
             sud.EncryptingKeyVersion.Position.ShouldBe(1);
@@ -38,7 +38,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
         public void CalculateCorrectPositionsForEncrypted()
         {
             Span<byte> encrypted = new byte[625];
-            var sud = new ArrayPositionsV1(encrypted);
+            var sud = ArrayPositionsV1.Get(encrypted);
 
             sud.Version.Position.ShouldBe(0);
             sud.EncryptingKeyVersion.Position.ShouldBe(1);
@@ -59,7 +59,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             Span<byte> encrypted = new byte[593];
             try
             {
-                var sud = new ArrayPositionsV1(encrypted);
+                var sud = ArrayPositionsV1.Get(encrypted);
             }
             catch (ArgumentException e)
             {
@@ -79,7 +79,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             Span<byte> encrypted = new byte[626];
             try
             {
-                var sud = new ArrayPositionsV1(encrypted);
+                var sud = ArrayPositionsV1.Get(encrypted);
             }
             catch (ArgumentException e)
             {

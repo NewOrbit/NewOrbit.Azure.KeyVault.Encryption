@@ -24,17 +24,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
         private const int InitialisationVectorLengthBytes = 16;
         private const int KeyVersionByteLength = 32;
 
-        public ArrayPositionsV1(int inputArrayLength)
-            : this(((inputArrayLength / 16) + 1) * 16, true)
-        {
-        }
-
-        public ArrayPositionsV1(in ReadOnlySpan<byte> encryptedContent)
-            : this(GetEncryptedContentLengthFromFullPackage(encryptedContent), true)
-        {
-        }
-
-        private ArrayPositionsV1(int encryptedContentLength, bool dummyForOverloadOnly)
+        private ArrayPositionsV1(int encryptedContentLength)
         {
             this.Version              = new Item(0, 1);
             this.EncryptingKeyVersion = new Item(this.Version, KeyVersionByteLength);
@@ -50,6 +40,12 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
         public static bool operator ==(ArrayPositionsV1 left, ArrayPositionsV1 right) => left.Equals(right);
 
         public static bool operator !=(ArrayPositionsV1 left, ArrayPositionsV1 right) => !left.Equals(right);
+
+        public static ArrayPositionsV1 Get(int inputArrayLength) 
+            => new ArrayPositionsV1(((inputArrayLength / 16) + 1) * 16);
+
+        public static ArrayPositionsV1 Get(in ReadOnlySpan<byte> encryptedContent)
+            => new ArrayPositionsV1(GetEncryptedContentLengthFromFullPackage(encryptedContent));
 
         public bool Equals(ArrayPositionsV1 other) => other.TotalLength == this.TotalLength;
 
