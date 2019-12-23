@@ -2,6 +2,6 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 {
     public static class Constants
     {
-        public const int RASKeySize = 2048; 
+        public const int RSAKeySize = 2048; 
     }
 }
