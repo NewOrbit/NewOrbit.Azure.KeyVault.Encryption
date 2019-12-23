@@ -1,18 +1,17 @@
-using System;
-using Shouldly;
-using Xunit;
-
-
 namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
 {
+    using System;
+    using Shouldly;
+    using Xunit;
+
     public class ArrayPositionTests
     {
         [Theory]
-        [InlineData(0,16)]
-        [InlineData(1,16)]
-        [InlineData(15,16)]
-        [InlineData(16,32)]
-        [InlineData(17,32)]
+        [InlineData(0, 16)]
+        [InlineData(1, 16)]
+        [InlineData(15, 16)]
+        [InlineData(16, 32)]
+        [InlineData(17, 32)]
         public void CalculateContentLength(int contentLength, int encryptedLength)
         {
             var sud = new ArrayPositionsV1(contentLength);
@@ -34,7 +33,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             sud.Signature.Position.ShouldBe(369);
             sud.TotalLength.ShouldBe(625);
         }
-        
+
         [Fact]
         public void CalculateCorrectPositionsForEncrypted()
         {
@@ -72,7 +71,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             // Can't use Should.Throw because Spans and Lambdas don't play nice
         }
 
-                [Fact]
+        [Fact]
         public void ShouldThrowIfEncryptedContentIsNotMultipleOf16()
         {
             ArgumentException thrownException = null;

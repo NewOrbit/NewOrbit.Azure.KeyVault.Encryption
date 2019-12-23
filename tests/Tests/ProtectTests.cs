@@ -17,7 +17,6 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             var decrypted = protector.Unprotect(encrypted);
 
             decrypted.ShouldBe(input);
-
         }
     }
 }
