@@ -8,7 +8,7 @@
     <Company>NewOrbit Ltd</Company>
     <Copyright>Copyright NewOrbit Ltd 2019</Copyright>
 
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>0.1.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <!-- For local/debug builds -->
     <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">debug</VersionSuffix>
