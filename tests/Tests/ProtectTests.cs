@@ -67,16 +67,25 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
     {
         private const int SymmetricKeyLengthInBytes = 32;
 
-        public void Wrap(byte[] symmetricKey, Span<byte> writeWrappedKeyToThisSpan)
+        private static byte[] staticKeyIdentifier;
+
+        static FakeSymmetricKeyWrapper()
+        {
+            staticKeyIdentifier = System.Text.Encoding.ASCII.GetBytes("abcdefghijklmnopqrstuvwxyzABCDEG");
+        }
+
+        public void Wrap(byte[] symmetricKey, Span<byte> writeWrappedKeyToThisSpan, Span<byte> writeKeyIdentifierToThisSpan)
         {
             symmetricKey.Length.ShouldBe(SymmetricKeyLengthInBytes);
             symmetricKey.CopyTo(writeWrappedKeyToThisSpan);
             writeWrappedKeyToThisSpan.Reverse();
+            staticKeyIdentifier.CopyTo(writeKeyIdentifierToThisSpan);
         }
 
-        public byte[] UnWrap(in ReadOnlySpan<byte> wrappedKey)
+        public byte[] UnWrap(in ReadOnlySpan<byte> wrappedKey, in ReadOnlySpan<byte> keyIdentifier)
         {
             wrappedKey.Length.ShouldBe(Constants.RSAKeySize / 8);
+            keyIdentifier.ToArray().ShouldBe(staticKeyIdentifier);
             var output = new byte[SymmetricKeyLengthInBytes];
             var temp = wrappedKey.ToArray();
             Array.Reverse(temp);

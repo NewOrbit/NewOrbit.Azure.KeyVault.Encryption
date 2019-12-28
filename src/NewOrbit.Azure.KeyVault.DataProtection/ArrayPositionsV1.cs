@@ -8,7 +8,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         public readonly Item Version;
 
-        public readonly Item AsymmetricWrapperKeyVersion;
+        public readonly Item AsymmetricWrapperKeyIdentifier;
 
         public readonly Item WrappedSymmetricKey;
 
@@ -27,8 +27,8 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
         private ArrayPositionsV1(int encryptedContentLength)
         {
             this.Version              = new Item(0, 1);
-            this.AsymmetricWrapperKeyVersion = new Item(this.Version, KeyVersionByteLength);
-            this.WrappedSymmetricKey        = new Item(this.AsymmetricWrapperKeyVersion, RSAKeyLengthBits / 8);
+            this.AsymmetricWrapperKeyIdentifier = new Item(this.Version, KeyVersionByteLength);
+            this.WrappedSymmetricKey        = new Item(this.AsymmetricWrapperKeyIdentifier, RSAKeyLengthBits / 8);
             this.InitialisationVector = new Item(this.WrappedSymmetricKey, InitialisationVectorLengthBytes);
             this.EncryptedContent     = new Item(this.InitialisationVector, encryptedContentLength);
             this.SigningKeyVersion    = new Item(this.EncryptedContent, KeyVersionByteLength);

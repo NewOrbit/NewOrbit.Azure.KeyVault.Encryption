@@ -48,8 +48,6 @@
                 var inputLength = input.Length;
                 var initialBlocks = (inputLength - 1) / 16;  // Some WETnes here with ArrayPositions
 
-                var buffer = new byte[16];  // TODO: Can I use stackalloc here or does it not really matter?
-
                 for (int i = 0; i < initialBlocks; i++)
                 {
                     var inputPos = i * 16;
@@ -65,7 +63,8 @@
                 aes.IV.CopyTo(output, positions.InitialisationVector.Position);
 
                 var sliceForTheWrappedKey = output.AsSpan().Slice(positions.WrappedSymmetricKey.Position, positions.WrappedSymmetricKey.Length);
-                this.symmetricKeyWrapper.Wrap(aes.Key, sliceForTheWrappedKey);
+                var sliceForTheKeyIdentifier = output.AsSpan().Slice(positions.AsymmetricWrapperKeyIdentifier.Position, positions.AsymmetricWrapperKeyIdentifier.Length);
+                this.symmetricKeyWrapper.Wrap(aes.Key, sliceForTheWrappedKey, sliceForTheKeyIdentifier);
             }
 
             return output;
@@ -81,8 +80,10 @@
             var positions = ArrayPositionsV1.Get(encryptedData);
 
             var iv = encryptedData.AsSpan().Slice(positions.InitialisationVector.Position, positions.InitialisationVector.Length).ToArray();
-            var encryptedSymmetricKey = encryptedData.AsSpan().Slice(positions.WrappedSymmetricKey.Position, positions.WrappedSymmetricKey.Length);
-            var symmetricKey = this.symmetricKeyWrapper.UnWrap(encryptedSymmetricKey);
+            ReadOnlySpan<byte> encryptedSymmetricKey = encryptedData.AsSpan().Slice(positions.WrappedSymmetricKey.Position, positions.WrappedSymmetricKey.Length);
+            ReadOnlySpan<byte> wrappingKeyIdentifier = encryptedData.AsSpan().Slice(positions.AsymmetricWrapperKeyIdentifier.Position, positions.AsymmetricWrapperKeyIdentifier.Length);
+
+            var symmetricKey = this.symmetricKeyWrapper.UnWrap(encryptedSymmetricKey, wrappingKeyIdentifier);
 
             Debug.Assert(symmetricKey.Length == 32, "The key length is not 32");
             Debug.Assert(iv.Length == 16, "the iv length is not 16");
