@@ -14,6 +14,8 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         public readonly Item InitialisationVector;
 
+        //// Consider adding a text encoding identifier
+
         public readonly Item EncryptedContent;
 
         public readonly Item SigningKeyVersion;
