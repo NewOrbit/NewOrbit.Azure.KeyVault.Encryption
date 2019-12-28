@@ -24,8 +24,8 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             var sud = ArrayPositionsV1.Get(16);
 
             sud.Version.Position.ShouldBe(0);
-            sud.EncryptingKeyVersion.Position.ShouldBe(1);
-            sud.EncryptingKey.Position.ShouldBe(33);
+            sud.AsymmetricWrapperKeyVersion.Position.ShouldBe(1);
+            sud.WrappedSymmetricKey.Position.ShouldBe(33);
             sud.InitialisationVector.Position.ShouldBe(289);
             sud.EncryptedContent.Position.ShouldBe(305);
             sud.EncryptedContent.Length.ShouldBe(32);
@@ -41,8 +41,8 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             var sud = ArrayPositionsV1.Get(encrypted);
 
             sud.Version.Position.ShouldBe(0);
-            sud.EncryptingKeyVersion.Position.ShouldBe(1);
-            sud.EncryptingKey.Position.ShouldBe(33);
+            sud.AsymmetricWrapperKeyVersion.Position.ShouldBe(1);
+            sud.WrappedSymmetricKey.Position.ShouldBe(33);
             sud.InitialisationVector.Position.ShouldBe(289);
             sud.EncryptedContent.Position.ShouldBe(305);
             sud.EncryptedContent.Length.ShouldBe(32);

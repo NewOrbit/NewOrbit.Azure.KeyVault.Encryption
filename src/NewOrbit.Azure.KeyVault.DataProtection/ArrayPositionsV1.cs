@@ -8,9 +8,9 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         public readonly Item Version;
 
-        public readonly Item EncryptingKeyVersion;
+        public readonly Item AsymmetricWrapperKeyVersion;
 
-        public readonly Item EncryptingKey;
+        public readonly Item WrappedSymmetricKey;
 
         public readonly Item InitialisationVector;
 
@@ -20,16 +20,16 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         public readonly Item Signature;
 
-        private const int RSAKeyLengthBits = 2048;
+        private const int RSAKeyLengthBits = Constants.RSAKeySize;
         private const int InitialisationVectorLengthBytes = 16;
         private const int KeyVersionByteLength = 32;
 
         private ArrayPositionsV1(int encryptedContentLength)
         {
             this.Version              = new Item(0, 1);
-            this.EncryptingKeyVersion = new Item(this.Version, KeyVersionByteLength);
-            this.EncryptingKey        = new Item(this.EncryptingKeyVersion, RSAKeyLengthBits / 8);
-            this.InitialisationVector = new Item(this.EncryptingKey, InitialisationVectorLengthBytes);
+            this.AsymmetricWrapperKeyVersion = new Item(this.Version, KeyVersionByteLength);
+            this.WrappedSymmetricKey        = new Item(this.AsymmetricWrapperKeyVersion, RSAKeyLengthBits / 8);
+            this.InitialisationVector = new Item(this.WrappedSymmetricKey, InitialisationVectorLengthBytes);
             this.EncryptedContent     = new Item(this.InitialisationVector, encryptedContentLength);
             this.SigningKeyVersion    = new Item(this.EncryptedContent, KeyVersionByteLength);
             this.Signature            = new Item(this.SigningKeyVersion, RSAKeyLengthBits / 8);
@@ -41,7 +41,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         public static bool operator !=(ArrayPositionsV1 left, ArrayPositionsV1 right) => !left.Equals(right);
 
-        public static ArrayPositionsV1 Get(int inputArrayLength) 
+        public static ArrayPositionsV1 Get(int inputArrayLength)
             => new ArrayPositionsV1(((inputArrayLength / 16) + 1) * 16);
 
         public static ArrayPositionsV1 Get(in ReadOnlySpan<byte> encryptedContent)

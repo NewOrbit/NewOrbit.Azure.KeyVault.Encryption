@@ -21,7 +21,7 @@
       $(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb
     </AllowedOutputExtensionsInPackageBuildOutputFolder>
 
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition=" '$(Configuration)' == 'Release' ">true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>../../NewOrbit.Package.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
