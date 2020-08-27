@@ -29,7 +29,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             sud.InitialisationVector.Position.ShouldBe(289);
             sud.EncryptedContent.Position.ShouldBe(305);
             sud.EncryptedContent.Length.ShouldBe(32);
-            sud.SigningKeyVersion.Position.ShouldBe(337);
+            sud.SigningKeyIdentifier.Position.ShouldBe(337);
             sud.Signature.Position.ShouldBe(369);
             sud.TotalLength.ShouldBe(625);
         }
@@ -46,7 +46,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             sud.InitialisationVector.Position.ShouldBe(289);
             sud.EncryptedContent.Position.ShouldBe(305);
             sud.EncryptedContent.Length.ShouldBe(32);
-            sud.SigningKeyVersion.Position.ShouldBe(337);
+            sud.SigningKeyIdentifier.Position.ShouldBe(337);
             sud.Signature.Position.ShouldBe(369);
             sud.TotalLength.ShouldBe(625);
         }

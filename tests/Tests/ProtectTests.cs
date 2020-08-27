@@ -1,6 +1,8 @@
 namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
 {
     using System;
+    using System.Security.Cryptography;
+    using Moq;
     using NewOrbit.Azure.KeyVault.DataProtection;
     using Shouldly;
     using Xunit;
@@ -58,7 +60,14 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
 
         private Protector GetProtector()
         {
-            return new Protector(new FakeSymmetricKeyWrapper());
+            // Note that we can't (easily) use Moq as Span can't be used as a type parameter
+
+            // TODO: Allow to pass in key identifiers and check they are being written correctly to the output
+            // TODO: Allow to pass in a particular signature and check it is being written correctly to the output
+            // TODO: Allow to set it to fail the signature validation and test
+            // TODO: Allow to pass in a specific "encrypted content" in order to test it being written correctly to the output
+        
+            return new Protector(new FakeSymmetricKeyWrapper(), new FakeDigestSigner());
         }
     }
 
@@ -92,6 +101,40 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             temp.AsSpan().Slice(0, SymmetricKeyLengthInBytes).CopyTo(output);
 
             return output;
+        }
+    }
+
+    public class FakeDigestSigner : IDigestSigner
+    {
+        private static byte[] staticKeyIdentifier;
+
+        static FakeDigestSigner()
+        {
+            staticKeyIdentifier = System.Text.Encoding.ASCII.GetBytes("ABCdefghijklmnopqrstuvwxyzABCdeg");
+        }
+
+        public void Sign(in ReadOnlySpan<byte> digest, string algorithm, in Span<byte> writeSignatureToThisSpan)
+        {
+            digest.Length.ShouldBe(64);
+            algorithm.ShouldBe("RS512");
+            writeSignatureToThisSpan.Length.ShouldBe(Constants.RSAKeySize / 8);
+
+            digest.CopyTo(writeSignatureToThisSpan);
+
+            writeSignatureToThisSpan.Reverse();
+        }
+
+        public bool Verify(in ReadOnlySpan<byte> digest, string algorithm, in ReadOnlySpan<byte> signature)
+        {
+            digest.Length.ShouldBe(64);
+            algorithm.ShouldBe("RS512");
+            signature.Length.ShouldBe(Constants.RSAKeySize / 8);
+
+            var temp = signature.ToArray().AsSpan();
+            temp.Reverse();
+            var recoveredSignature = temp.Slice(0, 64);
+
+            return digest.SequenceEqual(recoveredSignature);
         }
     }
 }
