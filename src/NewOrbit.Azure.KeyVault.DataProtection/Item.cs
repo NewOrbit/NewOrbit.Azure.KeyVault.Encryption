@@ -1,6 +1,7 @@
 namespace NewOrbit.Azure.KeyVault.DataProtection
 {
     using System;
+    using System.Reflection;
 
     public readonly struct Item : IEquatable<Item>
     {
@@ -22,6 +23,11 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
         public static bool operator ==(Item left, Item right) => left.Equals(right);
 
         public static bool operator !=(Item left, Item right) => !left.Equals(right);
+
+        public Span<byte> GetSpan(byte[] dataArray)
+        {
+            return dataArray.AsSpan<byte>().Slice(this.Position, this.Length);
+        }
 
         public bool Equals(Item other) => other.Position == this.Position && other.Length == this.Length;
 

@@ -32,43 +32,21 @@
         /// <returns>Encrypted and signed data with key identifiers.</returns>
         public byte[] Protect(byte[] input)
         {
-            // Encrypt
-            // add IV
-            // add encrypted version of the symmetric key
-            // add signature to output
-            //// add key identifier for signature verification
+            //// add signature to output
 
             var positions = ArrayPositionsV1.Get(input.Length);
 
             var output = new byte[positions.TotalLength];
 
-            using (var aes = Aes.Create())
-            {
-                Debug.Assert(aes.Key.Length == 32, "AES key length is not 32");
-                Debug.Assert(aes.IV.Length == 16, "IV length is not 16");
-                var encryptor = aes.CreateEncryptor();
+            var key = this.EncryptWithAES(
+                input,
+                positions.EncryptedContent.GetSpan(output),
+                positions.InitialisationVector.GetSpan(output));
 
-                var inputLength = input.Length;
-                var initialBlocks = (inputLength - 1) / 16;  // Some WETnes here with ArrayPositions
-
-                for (int i = 0; i < initialBlocks; i++)
-                {
-                    var inputPos = i * 16;
-                    var outputPos = inputPos + positions.EncryptedContent.Position;
-                    encryptor.TransformBlock(input, inputPos, 16, output, outputPos);
-                }
-
-                var finalBlockStart = initialBlocks * 16;
-                var finalBlockLength = inputLength - (initialBlocks * 16);
-                var finalBlock = encryptor.TransformFinalBlock(input, finalBlockStart, finalBlockLength);
-                finalBlock.CopyTo(output, finalBlockStart + positions.EncryptedContent.Position);
-
-                aes.IV.CopyTo(output, positions.InitialisationVector.Position);
-
-                var sliceForTheWrappedKey = output.AsSpan().Slice(positions.WrappedSymmetricKey.Position, positions.WrappedSymmetricKey.Length);
-                var sliceForTheKeyIdentifier = output.AsSpan().Slice(positions.AsymmetricWrapperKeyIdentifier.Position, positions.AsymmetricWrapperKeyIdentifier.Length);
-                this.symmetricKeyWrapper.Wrap(aes.Key, sliceForTheWrappedKey, sliceForTheKeyIdentifier);
-            }
+            this.symmetricKeyWrapper.Wrap(
+                key,
+                positions.WrappedSymmetricKey.GetSpan(output),
+                positions.AsymmetricWrapperKeyIdentifier.GetSpan(output));
 
             return output;
         }
@@ -82,9 +60,10 @@
         {
             var positions = ArrayPositionsV1.Get(encryptedData);
 
-            var iv = encryptedData.AsSpan().Slice(positions.InitialisationVector.Position, positions.InitialisationVector.Length).ToArray();
-            ReadOnlySpan<byte> encryptedSymmetricKey = encryptedData.AsSpan().Slice(positions.WrappedSymmetricKey.Position, positions.WrappedSymmetricKey.Length);
-            ReadOnlySpan<byte> wrappingKeyIdentifier = encryptedData.AsSpan().Slice(positions.AsymmetricWrapperKeyIdentifier.Position, positions.AsymmetricWrapperKeyIdentifier.Length);
+            var iv = positions.InitialisationVector.GetSpan(encryptedData).ToArray();
+
+            ReadOnlySpan<byte> encryptedSymmetricKey = positions.WrappedSymmetricKey.GetSpan(encryptedData);
+            ReadOnlySpan<byte> wrappingKeyIdentifier = positions.AsymmetricWrapperKeyIdentifier.GetSpan(encryptedData);
 
             var symmetricKey = this.symmetricKeyWrapper.UnWrap(encryptedSymmetricKey, wrappingKeyIdentifier);
 
@@ -95,6 +74,43 @@
             {
                 var decryptor = aes.CreateDecryptor(symmetricKey, iv);
                 return decryptor.TransformFinalBlock(encryptedData, positions.EncryptedContent.Position, positions.EncryptedContent.Length);
+            }
+        }
+
+        /// <summary>
+        /// Encrypt the input and stores the encrypted content and the iv.
+        /// Returns the used encryption key.
+        /// </summary>
+        /// <returns>The used encryption key.</returns>
+        private ReadOnlySpan<byte> EncryptWithAES(byte[] input, Span<byte> encryptedContentDestination, Span<byte> ivDestination)
+        {
+            // AES cannot directly work with Span so need some gymnastics...
+            using (var aes = Aes.Create())
+            {
+                Debug.Assert(aes.Key.Length == 32, "AES key length is not 32");
+                Debug.Assert(aes.IV.Length == 16, "IV length is not 16");
+                var encryptor = aes.CreateEncryptor();
+
+                var inputLength = input.Length;
+                var initialBlocks = (inputLength - 1) / 16;  // Some WETnes here with ArrayPositions
+                byte[] buffer = new byte[16];
+                for (int i = 0; i < initialBlocks; i++)
+                {
+                    var position = i * 16;
+                    encryptor.TransformBlock(input, position, 16, buffer, 0);
+                    buffer.CopyTo(encryptedContentDestination[position..]);
+                    Array.Clear(buffer, 0, 16);
+                }
+
+                var finalBlockStart = initialBlocks * 16;
+                var finalBlockLength = inputLength - (initialBlocks * 16);
+                var finalBlock = encryptor.TransformFinalBlock(input, finalBlockStart, finalBlockLength);
+
+                finalBlock.CopyTo(encryptedContentDestination[finalBlockStart..]);
+
+                aes.IV.CopyTo(ivDestination);
+
+                return aes.Key;
             }
         }
     }

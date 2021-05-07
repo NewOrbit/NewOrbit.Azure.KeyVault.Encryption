@@ -66,7 +66,6 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             // TODO: Allow to pass in a particular signature and check it is being written correctly to the output
             // TODO: Allow to set it to fail the signature validation and test
             // TODO: Allow to pass in a specific "encrypted content" in order to test it being written correctly to the output
-        
             return new Protector(new FakeSymmetricKeyWrapper(), new FakeDigestSigner());
         }
     }
@@ -83,7 +82,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             staticKeyIdentifier = System.Text.Encoding.ASCII.GetBytes("abcdefghijklmnopqrstuvwxyzABCDEG");
         }
 
-        public void Wrap(byte[] symmetricKey, Span<byte> writeWrappedKeyToThisSpan, Span<byte> writeKeyIdentifierToThisSpan)
+        public void Wrap(ReadOnlySpan<byte> symmetricKey, Span<byte> writeWrappedKeyToThisSpan, Span<byte> writeKeyIdentifierToThisSpan)
         {
             symmetricKey.Length.ShouldBe(SymmetricKeyLengthInBytes);
             symmetricKey.CopyTo(writeWrappedKeyToThisSpan);
