@@ -62,10 +62,9 @@
 
             var iv = positions.InitialisationVector.GetSpan(encryptedData).ToArray();
 
-            ReadOnlySpan<byte> encryptedSymmetricKey = positions.WrappedSymmetricKey.GetSpan(encryptedData);
-            ReadOnlySpan<byte> wrappingKeyIdentifier = positions.AsymmetricWrapperKeyIdentifier.GetSpan(encryptedData);
-
-            var symmetricKey = this.symmetricKeyWrapper.UnWrap(encryptedSymmetricKey, wrappingKeyIdentifier);
+            var symmetricKey = this.symmetricKeyWrapper.UnWrap(
+                positions.WrappedSymmetricKey.GetSpan(encryptedData),
+                positions.AsymmetricWrapperKeyIdentifier.GetSpan(encryptedData));
 
             Debug.Assert(symmetricKey.Length == 32, "The key length is not 32");
             Debug.Assert(iv.Length == 16, "the iv length is not 16");
