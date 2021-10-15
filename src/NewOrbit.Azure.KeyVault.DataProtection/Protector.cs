@@ -16,6 +16,7 @@
         //// - accept string with encodings
         //// - optionally return base64
         //// - accept a stream, ideally with a length and read it in chunks
+        //// - Accept readonly spans as inputs?
         //// - write to a stream "on the fly" to reduce memory consumption
         //// - maybe support ICryptoStream (how the hell does that handle the whole "final block" thing?? Not that it will help me as I want to pre-allocate the byte array)
 
