@@ -1,6 +1,7 @@
 namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
 {
     using System;
+    using System.Security;
     using Shouldly;
     using Xunit;
 
@@ -31,13 +32,14 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             sud.EncryptedContent.Length.ShouldBe(32);
             sud.SigningKeyIdentifier.Position.ShouldBe(337);
             sud.Signature.Position.ShouldBe(369);
-            sud.TotalLength.ShouldBe(625);
+            sud.Signature.Length.ShouldBe(128 / 8); // Only keep 128 bits of the signature as per "Security Driven .Net"
+            sud.TotalLength.ShouldBe(385);
         }
 
         [Fact]
         public void CalculateCorrectPositionsForEncrypted()
         {
-            Span<byte> encrypted = new byte[625];
+            Span<byte> encrypted = new byte[385];
             var sud = ArrayPositionsV1.Get(encrypted);
 
             sud.Version.Position.ShouldBe(0);
@@ -48,15 +50,30 @@ namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
             sud.EncryptedContent.Length.ShouldBe(32);
             sud.SigningKeyIdentifier.Position.ShouldBe(337);
             sud.Signature.Position.ShouldBe(369);
-            sud.TotalLength.ShouldBe(625);
+            sud.Signature.Length.ShouldBe(128 / 8); // Only keep 128 bits of the signature as per "Security Driven .Net"
+            sud.TotalLength.ShouldBe(385);
         }
+
+        [Theory]
+        [InlineData(0, 369)]
+        [InlineData(15, 369)]
+        [InlineData(16, 385)]
+        [InlineData(31, 385)]
+        [InlineData(1_048_576, 1_048_945)]
+
+        public void CalculateContentLengths(int contentLength, int outputLength)
+        {
+            var sud = ArrayPositionsV1.Get(contentLength);
+            sud.TotalLength.ShouldBe(outputLength);
+        }
+
 
         [Fact]
         public void ShouldThrowIfEncryptedContentIsTooShort()
         {
             ArgumentException thrownException = null;
 
-            Span<byte> encrypted = new byte[593];
+            Span<byte> encrypted = new byte[353];
             try
             {
                 var sud = ArrayPositionsV1.Get(encrypted);

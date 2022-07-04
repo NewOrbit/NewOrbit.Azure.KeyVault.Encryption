@@ -26,6 +26,8 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
         private const int InitialisationVectorLengthBytes = 16;
         private const int KeyVersionByteLength = 32;
 
+        private const int SignatureBitsToKeep = 128;
+
         private ArrayPositionsV1(int encryptedContentLength)
         {
             this.Version              = new Item(0, 1);
@@ -34,7 +36,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
             this.InitialisationVector = new Item(this.WrappedSymmetricKey, InitialisationVectorLengthBytes);
             this.EncryptedContent     = new Item(this.InitialisationVector, encryptedContentLength);
             this.SigningKeyIdentifier    = new Item(this.EncryptedContent, KeyVersionByteLength);
-            this.Signature            = new Item(this.SigningKeyIdentifier, RSAKeyLengthBits / 8);
+            this.Signature            = new Item(this.SigningKeyIdentifier, SignatureBitsToKeep / 8);
             this.TotalLength          = this.Signature.Position + this.Signature.Length;  // Reminder: this is one higher than the last position in the array
         }
 
@@ -57,7 +59,7 @@ namespace NewOrbit.Azure.KeyVault.DataProtection
 
         private static int GetEncryptedContentLengthFromFullPackage(in ReadOnlySpan<byte> encryptedContent)
         {
-            var overheadLength = 1 + (2 * KeyVersionByteLength) + (2 * (RSAKeyLengthBits / 8)) + InitialisationVectorLengthBytes;
+            var overheadLength = 1 + (2 * KeyVersionByteLength) + (RSAKeyLengthBits / 8) + InitialisationVectorLengthBytes + (SignatureBitsToKeep / 8);
             var encryptedContentLength = encryptedContent.Length - overheadLength;
             if (encryptedContentLength < 16)
             {

@@ -1,7 +1,6 @@
 namespace NewOrbit.Azure.KeyVault.DataProtection
 {
     using System;
-    using System.Reflection;
 
     public readonly struct Item : IEquatable<Item>
     {
