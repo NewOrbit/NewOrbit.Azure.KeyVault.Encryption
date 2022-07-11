@@ -1,130 +1,32 @@
-﻿namespace NewOrbit.DataProtection;
+namespace NewOrbit.DataProtection;
 using System;
-using System.Diagnostics;
-using System.Security.Cryptography;
+using System.Text;
 
-/// <summary>
-/// A class.
-/// </summary>
-public class Protector
+public abstract class Protector
 {
-    private ISymmetricKeyWrapper symmetricKeyWrapper;
-    private IDigestSigner digestSigner;
+    private readonly ISymmetricKeyWrapper symmetricKeyWrapper;
+    private readonly IDigestSigner digestSigner;
 
-    //// TODO:
-    //// - accept string with encodings
-    //// - optionally return base64
-    //// - accept a stream, ideally with a length and read it in chunks
-    //// - Accept readonly spans as inputs?
-    //// - write to a stream "on the fly" to reduce memory consumption
-    //// - maybe support ICryptoStream (how the hell does that handle the whole "final block" thing?? Not that it will help me as I want to pre-allocate the byte array)
-
-    public Protector(ISymmetricKeyWrapper symmetricKeyWrapper, IDigestSigner digestSigner)
+    protected Protector(ISymmetricKeyWrapper symmetricKeyWrapper, IDigestSigner digestSigner)
     {
         this.symmetricKeyWrapper = symmetricKeyWrapper;
         this.digestSigner = digestSigner;
     }
 
-    /// <summary>
-    /// Encrypt and sign the input byte array.
-    /// </summary>
-    /// <param name="input">A byte array of data to be encrypted.</param>
-    /// <returns>Encrypted and signed data with key identifiers.</returns>
-    public byte[] Protect(byte[] input)
+    public Encryptor Encrypt(byte[] data)
     {
-        var positions = ArrayPositionsV1.Get(input.Length);
-
-        var output = new byte[positions.TotalLength];
-
-        var key = this.EncryptWithAES(
-            input,
-            positions.EncryptedContent.GetSpan(output),
-            positions.InitialisationVector.GetSpan(output));
-
-        this.symmetricKeyWrapper.Wrap(
-            key,
-            positions.WrappedSymmetricKey.GetSpan(output),
-            positions.AsymmetricWrapperKeyIdentifier.GetSpan(output));
-
-        var hash = CalculateHash(output, positions);
-        this.digestSigner.Sign(hash.AsSpan<byte>(), "RS512", positions.Signature.GetSpan(output), positions.SigningKeyIdentifier.GetSpan(output));
-
-        return output;
+        return new Encryptor(data, this.symmetricKeyWrapper, this.digestSigner);
     }
 
-    /// <summary>
-    /// Decrypt and check the signature.
-    /// </summary>
-    /// <param name="encryptedData">Data previously encrypted with this lib.</param>
-    /// <returns>Decrypted data.</returns>
-    public byte[] Unprotect(byte[] encryptedData)
+    public Encryptor Encrypt(string data) => this.Encrypt(data, Encoding.UTF8);
+
+    public Encryptor Encrypt(string data, Encoding encoding)
     {
-        var positions = ArrayPositionsV1.Get(encryptedData);
-
-        // Validate the signature
-        var hash = CalculateHash(encryptedData, positions);
-        if (!this.digestSigner.Verify(hash.AsSpan(), "RS512", positions.Signature.GetSpan(encryptedData), positions.SigningKeyIdentifier.GetSpan(encryptedData)))
-        {
-            throw new SignatureValidationException("The signature is invalid; it looks like this encrypted content was modififed while in storage or transit.");
-        }
-
-        var iv = positions.InitialisationVector.GetSpan(encryptedData).ToArray();
-
-        var symmetricKey = this.symmetricKeyWrapper.UnWrap(
-            positions.WrappedSymmetricKey.GetSpan(encryptedData),
-            positions.AsymmetricWrapperKeyIdentifier.GetSpan(encryptedData));
-
-        Debug.Assert(symmetricKey.Length == 32, "The key length is not 32");
-        Debug.Assert(iv.Length == 16, "the iv length is not 16");
-
-        using (var aes = Aes.Create())
-        {
-            var decryptor = aes.CreateDecryptor(symmetricKey, iv);
-            return decryptor.TransformFinalBlock(encryptedData, positions.EncryptedContent.Position, positions.EncryptedContent.Length);
-        }
+        throw new NotImplementedException();
     }
 
-    private static byte[] CalculateHash(in byte[] output, ArrayPositionsV1 positions)
+    public Decryptor Decrypt(byte[] encryptedData)
     {
-        var hashAlgo = SHA512.Create();
-        var hash = hashAlgo.ComputeHash(output, positions.IVAndEncryptedContent.Position, positions.IVAndEncryptedContent.Length);
-        return hash;
-    }
-
-    /// <summary>
-    /// Encrypt the input and stores the encrypted content and the iv.
-    /// Returns the used encryption key.
-    /// </summary>
-    /// <returns>The used encryption key.</returns>
-    private ReadOnlySpan<byte> EncryptWithAES(byte[] input, Span<byte> encryptedContentDestination, Span<byte> ivDestination)
-    {
-        // AES cannot directly work with Span so need some gymnastics...
-        using (var aes = Aes.Create())
-        {
-            Debug.Assert(aes.Key.Length == 32, "AES key length is not 32");
-            Debug.Assert(aes.IV.Length == 16, "IV length is not 16");
-            var encryptor = aes.CreateEncryptor();
-
-            var inputLength = input.Length;
-            var initialBlocks = (inputLength - 1) / 16;  // Some WETnes here with ArrayPositions
-            byte[] buffer = new byte[16];
-            for (int i = 0; i < initialBlocks; i++)
-            {
-                var position = i * 16;
-                encryptor.TransformBlock(input, position, 16, buffer, 0);
-                buffer.CopyTo(encryptedContentDestination[position..]);
-                Array.Clear(buffer, 0, 16);
-            }
-
-            var finalBlockStart = initialBlocks * 16;
-            var finalBlockLength = inputLength - (initialBlocks * 16);
-            var finalBlock = encryptor.TransformFinalBlock(input, finalBlockStart, finalBlockLength);
-
-            finalBlock.CopyTo(encryptedContentDestination[finalBlockStart..]);
-
-            aes.IV.CopyTo(ivDestination);
-
-            return aes.Key;
-        }
+        return new Decryptor(encryptedData, this.symmetricKeyWrapper, this.digestSigner);
     }
 }
