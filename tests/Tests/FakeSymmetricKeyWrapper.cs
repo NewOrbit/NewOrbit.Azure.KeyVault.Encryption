@@ -8,12 +8,7 @@ namespace NewOrbit.DataProtection.Tests
     {
         private const int SymmetricKeyLengthInBytes = 32;
 
-        private static byte[] staticKeyIdentifier;
-
-        static FakeSymmetricKeyWrapper()
-        {
-            staticKeyIdentifier = System.Text.Encoding.ASCII.GetBytes("abcdefghijklmnopqrstuvwxyzABCDEG");
-        }
+        private static byte[] staticKeyIdentifier= System.Text.Encoding.ASCII.GetBytes("abcdefghijklmnopqrstuvwxyzABCDEG");
 
         public void Wrap(ReadOnlySpan<byte> symmetricKey, Span<byte> writeWrappedKeyToThisSpan, Span<byte> writeKeyIdentifierToThisSpan)
         {

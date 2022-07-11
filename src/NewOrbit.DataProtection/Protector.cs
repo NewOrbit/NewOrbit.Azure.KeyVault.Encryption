@@ -32,8 +32,6 @@ public class Protector
     /// <returns>Encrypted and signed data with key identifiers.</returns>
     public byte[] Protect(byte[] input)
     {
-        //// add signature to output
-
         var positions = ArrayPositionsV1.Get(input.Length);
 
         var output = new byte[positions.TotalLength];
@@ -48,6 +46,9 @@ public class Protector
             positions.WrappedSymmetricKey.GetSpan(output),
             positions.AsymmetricWrapperKeyIdentifier.GetSpan(output));
 
+        var hash = CalculateHash(output, positions);
+        this.digestSigner.Sign(hash.AsSpan<byte>(), "RS512", positions.Signature.GetSpan(output), positions.SigningKeyIdentifier.GetSpan(output));
+
         return output;
     }
 
@@ -59,6 +60,13 @@ public class Protector
     public byte[] Unprotect(byte[] encryptedData)
     {
         var positions = ArrayPositionsV1.Get(encryptedData);
+
+        // Validate the signature
+        var hash = CalculateHash(encryptedData, positions);
+        if (!this.digestSigner.Verify(hash.AsSpan(), "RS512", positions.Signature.GetSpan(encryptedData), positions.SigningKeyIdentifier.GetSpan(encryptedData)))
+        {
+            throw new SignatureValidationException("The signature is invalid; it looks like this encrypted content was modififed while in storage or transit.");
+        }
 
         var iv = positions.InitialisationVector.GetSpan(encryptedData).ToArray();
 
@@ -74,6 +82,13 @@ public class Protector
             var decryptor = aes.CreateDecryptor(symmetricKey, iv);
             return decryptor.TransformFinalBlock(encryptedData, positions.EncryptedContent.Position, positions.EncryptedContent.Length);
         }
+    }
+
+    private static byte[] CalculateHash(in byte[] output, ArrayPositionsV1 positions)
+    {
+        var hashAlgo = SHA512.Create();
+        var hash = hashAlgo.ComputeHash(output, positions.IVAndEncryptedContent.Position, positions.IVAndEncryptedContent.Length);
+        return hash;
     }
 
     /// <summary>

@@ -32,4 +32,9 @@ public readonly struct Item : IEquatable<Item>
     public override bool Equals(object other) => other is Item o && this.Equals(o);
 
     public override int GetHashCode() => this.Length * this.Position;
+
+    public override string ToString()
+    {
+        return $"{this.Position} - {this.Position + this.Length} ({this.Length})";
+    }
 }

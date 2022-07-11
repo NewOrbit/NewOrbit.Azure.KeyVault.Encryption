@@ -40,6 +40,8 @@ namespace NewOrbit.DataProtection
             this.TotalLength          = this.Signature.Position + this.Signature.Length;  // Reminder: this is one higher than the last position in the array
         }
 
+        public readonly Item IVAndEncryptedContent => new (this.InitialisationVector.Position, this.InitialisationVector.Length + this.EncryptedContent.Length);
+
         // All the equality overrides are irrelevant, it's just because structs. Probably easier to make this an object :)
         public static bool operator ==(ArrayPositionsV1 left, ArrayPositionsV1 right) => left.Equals(right);
 

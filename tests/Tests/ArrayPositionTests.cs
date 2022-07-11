@@ -26,14 +26,19 @@ namespace NewOrbit.DataProtection.Tests
 
             sud.Version.Position.ShouldBe(0);
             sud.AsymmetricWrapperKeyIdentifier.Position.ShouldBe(1);
+            sud.AsymmetricWrapperKeyIdentifier.Length.ShouldBe(32);
             sud.WrappedSymmetricKey.Position.ShouldBe(33);
             sud.InitialisationVector.Position.ShouldBe(289);
+            sud.InitialisationVector.Length.ShouldBe(16);
             sud.EncryptedContent.Position.ShouldBe(305);
             sud.EncryptedContent.Length.ShouldBe(32);
             sud.SigningKeyIdentifier.Position.ShouldBe(337);
+            sud.SigningKeyIdentifier.Length.ShouldBe(32);
             sud.Signature.Position.ShouldBe(369);
             sud.Signature.Length.ShouldBe(128 / 8); // Only keep 128 bits of the signature as per "Security Driven .Net"
             sud.TotalLength.ShouldBe(385);
+            sud.IVAndEncryptedContent.Position.ShouldBe(289);
+            sud.IVAndEncryptedContent.Length.ShouldBe(16 + 32);
         }
 
         [Fact]
