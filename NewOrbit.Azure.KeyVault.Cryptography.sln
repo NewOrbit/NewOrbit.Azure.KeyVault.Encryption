@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "tests\Tests\Tests.csproj", "{11B879DD-1986-420B-A924-D32F030016AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewOrbit.Azure.KeyVault.DataProtection", "src\NewOrbit.Azure.KeyVault.DataProtection\NewOrbit.Azure.KeyVault.DataProtection.csproj", "{A5FE8692-3490-47B7-B93C-409750A2048C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewOrbit.Azure.KeyVault.DataProtection", "src\NewOrbit.DataProtection\NewOrbit.Azure.KeyVault.DataProtection.csproj", "{A5FE8692-3490-47B7-B93C-409750A2048C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NewOrbit.Azure.KeyVault.DataProtection\NewOrbit.Azure.KeyVault.DataProtection.csproj" />
+    <ProjectReference Include="..\..\src\NewOrbit.DataProtection\NewOrbit.Azure.KeyVault.DataProtection.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
-namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
+namespace NewOrbit.DataProtection.Tests
 {
     using System;
-    using NewOrbit.Azure.KeyVault.DataProtection;
+    using NewOrbit.DataProtection;
     using Shouldly;
 #pragma warning disable SA1402
     public class FakeSymmetricKeyWrapper : ISymmetricKeyWrapper

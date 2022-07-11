@@ -4,9 +4,10 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>NewOrbit Ltd</Authors>
     <PackageTags>NewOrbit Azure.KeyVault.DataProtection</PackageTags>
-    <AssemblyTitle>NewOrbit Azure.KeyVault.DataProtection</AssemblyTitle>
+    <AssemblyTitle>NewOrbit.DataProtection</AssemblyTitle>
     <Company>NewOrbit Ltd</Company>
-    <Copyright>Copyright NewOrbit Ltd 2019</Copyright>
+    <Copyright>Copyright NewOrbit Ltd 2022</Copyright>
+    <LangVersion>latest</LangVersion>
 
     <VersionPrefix>0.1.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
@@ -26,8 +27,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.9.2" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
+    <PackageReference Include="Microsoft.CodeQuality.Analyzers" Version="2.9.2">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" >
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

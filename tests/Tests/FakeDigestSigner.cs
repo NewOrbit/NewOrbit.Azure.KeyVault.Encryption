@@ -1,9 +1,9 @@
-namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
+namespace NewOrbit.DataProtection.Tests
 {
     using System;
     using System.Security.Cryptography;
     using Moq;
-    using NewOrbit.Azure.KeyVault.DataProtection;
+    using NewOrbit.DataProtection;
     using Shouldly;
     using Xunit;
 

@@ -1,4 +1,4 @@
-namespace NewOrbit.Azure.KeyVault.DataProtection
+namespace NewOrbit.DataProtection
 {
     public static class Constants
     {

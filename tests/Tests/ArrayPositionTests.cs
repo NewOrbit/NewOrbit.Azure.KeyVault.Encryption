@@ -1,4 +1,4 @@
-namespace NewOrbit.Azure.KeyVault.DataProtection.Tests
+namespace NewOrbit.DataProtection.Tests
 {
     using System;
     using System.Security;
