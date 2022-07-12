@@ -5,7 +5,7 @@ If you just need to encrypt data in your system in a dependable and best-practic
 
 - High Performance: This is not optimised for high performance or for streaming encryption scenarios. The package makes use of Spans and similar approaches to give pretty good performance, but some of the algorithm choices may not be the best choice for high-performance scenarios.  
 - Encrypting very large items: The use of Authenticated Encryption requires us to keep all of the encrypted content in memory and the implementation details means the content to be encrypted is usually also kept in memory at the same time.  
-- Storage of the encrypted content is at a premium: The "encrypted content" contains a key reference, the IV, a checksum and a signature. All in all, this means a a fixed overhead of 509 bytes is added to the size of the content. For small payloads this is a large increase so this may not be so good if you need to encrypt a very large number of very small items and storage is at a premium.
+- Storage of the encrypted content is at a premium: The "encrypted content" contains two key references, the IV and a signature. All in all, this means a a fixed overhead of 353 bytes is added to the size of the content. For small payloads this is a large increase so this may not be so good if you need to encrypt a very large number of very small items and storage is at a premium.
 
 There are ways you can work around all of these limitations by working closer with the underlying technologies and make a number of choices. For example, you can use the streaming APIs, you may forgo Authenticated Encryption or use the same symmetric key for multiple items. All of these approaches have secrurity implications that you will need to assess for your specific scenario.
 
